@@ -1,9 +1,11 @@
 package com.example.demo;
 
+import com.github.javafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -17,41 +19,23 @@ public class Application {
 	@Bean
 	CommandLineRunner commandLineRunner(StudentRepository studentRepository){
 		return args -> {
-			Student maria = new Student(
-					"Maria",
-					"Jones",
-					"maria.jones@gmail.com",
-					21);
-			Student maria2 = new Student(
-					"Maria",
-					"Jones",
-					"maria2.jones@gmail.com",
-					25);
-			Student ahmed = new Student(
-					"Ahmed",
-					"Ali",
-					"ahmed.ali@gmail.com",
-					21);
-			System.out.println("Adding Maria and Ahmed");
-
-			studentRepository.saveAll(List.of(maria,ahmed,maria2));
-
-			studentRepository.findStudentsByEmail("ahmed.ali@gmail.com")
-					.ifPresentOrElse(System.out::println,
-							() -> {
-								System.out.println("Student with email not found");
-							});
-			studentRepository.
-					findStudentsByFirstNameEqualsAndAgeIsGreaterThanEqual("Maria",21)
-					.forEach(System.out::println);
-
-			studentRepository.
-					findStudentsByFirstNameEqualsAndAgeIsGreaterThanEqualNative("Maria",21)
-					.forEach(System.out::println);
-
-			System.out.println("Deleting Maria2");
-			System.out.println(studentRepository.deleteStudentById(3L));
+			generateRandomStudents(studentRepository);
+			Sort sort = Sort.by(Sort.Direction.ASC, "firstName");
+			studentRepository.findAll(sort)
+					.forEach(student -> System.out.println(student.getFirstName()));
 		};
+	}
+
+	private static void generateRandomStudents(StudentRepository studentRepository) {
+		Faker faker = new Faker();
+		for (int i = 0; i < 20; i++) {
+			String firstName = faker.name().lastName();
+			String lastName = faker.name().lastName();
+			String email = String.format("%s.%s@gmail.com",firstName,lastName);
+
+			Student student = new Student(firstName, lastName, email, faker.number().numberBetween(17, 55));
+			studentRepository.save(student);
+		}
 	}
 
 }
