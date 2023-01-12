@@ -41,10 +41,16 @@ public class Application {
 							() -> {
 								System.out.println("Student with email not found");
 							});
-
 			studentRepository.
 					findStudentsByFirstNameEqualsAndAgeIsGreaterThanEqual("Maria",21)
 					.forEach(System.out::println);
+
+			studentRepository.
+					findStudentsByFirstNameEqualsAndAgeIsGreaterThanEqualNative("Maria",21)
+					.forEach(System.out::println);
+
+			System.out.println("Deleting Maria2");
+			System.out.println(studentRepository.deleteStudentById(3L));
 		};
 	}
 
